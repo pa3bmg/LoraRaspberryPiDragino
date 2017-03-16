@@ -83,7 +83,7 @@ public class UDPcomm {
 						buffer = packet.getData();
 						String Redata = new String(buffer);
 						Logger.info("RecData="+Redata);
-						if (callback!=null) callback.ReceivedString(Redata);
+						if (callback!=null) callback.ReceivedUDPString(Redata);
 					} catch (IOException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
