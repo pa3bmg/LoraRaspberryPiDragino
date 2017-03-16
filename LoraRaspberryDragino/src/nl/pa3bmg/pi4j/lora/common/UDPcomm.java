@@ -6,8 +6,6 @@ import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.net.SocketException;
 import java.util.Random;
-
-import org.bouncycastle.pqc.math.linearalgebra.ByteUtils;
 import org.pmw.tinylog.Logger;
 
 
@@ -23,10 +21,11 @@ public class UDPcomm {
 		this.TXSock = TXSock;
 	}
 	
-	public UDPcomm(UDPCommCallback callback, int TXSock, int RecSock){
-		this.TXSock = TXSock;
-		this.RecSock = RecSock;
-		this.callback = callback;
+	public UDPcomm(UDPCommCallback _callback, int _TXSock, int _RecSock, String _IP){
+		TXSock = _TXSock;
+		RecSock = _RecSock;
+		callback = _callback;
+		IP = _IP;
 		new Receive().start();
 	}
 	
@@ -61,6 +60,7 @@ public class UDPcomm {
 			DatagramPacket packet = new DatagramPacket(sendMessage, sendMessage.length, new InetSocketAddress(IP, TXSock));
 			DatagramSocket socket = new DatagramSocket();
 			socket.send(packet);
+			socket.close();
 		} catch (SocketException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -97,7 +97,7 @@ public class UDPcomm {
 	}
 	
 	public static void main(String[] args) {
-		new UDPcomm(null,1700,1700);
+		new UDPcomm(null,1700,1700, "router.eu.thethings.network");
 	}
 }
 

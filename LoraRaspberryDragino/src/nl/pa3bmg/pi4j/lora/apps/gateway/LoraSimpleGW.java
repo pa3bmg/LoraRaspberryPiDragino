@@ -8,6 +8,7 @@ import nl.pa3bmg.pi4j.lora.common.UDPCommCallback;
 import nl.pa3bmg.pi4j.lora.common.UDPcomm;
 import nl.pa3bmg.pi4j.lora.device.sx1276;
 import nl.pa3bmg.pi4j.lora.device.sx1276_callback;
+import nl.pa3bmg.pi4j.lora.model.JsonUpRxpk;
 import nl.pa3bmg.pi4j.lora.model.JsonUpStatus;
 import nl.pa3bmg.pi4j.lora.model.JsonUpStatus.stat;
 import nl.pa3bmg.pi4j.lora.model.SnifModel;
@@ -22,12 +23,13 @@ import org.pmw.tinylog.Logger;
 
 public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCallback,  sx1276_callback {
 	final GpioController gpio = GpioFactory.getInstance();
-	private UDPcomm UDP = new UDPcomm(this, 1700,1700);  //communication to TheThingsNetwork
+	private UDPcomm UDP;  //communication to TheThingsNetwork
 	private String GateWayMac = "abcdefffff0123456";
 	private long LastStatsTime = 0;
 	private BusMCTask MCTask;
 	private String GateWayAddress = "router.eu.thethings.network";
 	private sx1276 sxdevice;
+	private Gson gs = new Gson();
 	
 	
 	public LoraSimpleGW(String _GateWayMac, String _GateWayAddress){
@@ -36,6 +38,7 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 		GateWayAddress = _GateWayAddress;
 		sxdevice = new sx1276(this,gpio);
 		sxdevice.ReceiverOn();
+		UDP = new UDPcomm(this, 1700,1700, GateWayAddress);
 		this.run();
 	}
 
@@ -65,7 +68,6 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 		jus.stats.pfrm = "Single Channel Gateway";
 		jus.stats.mail = "";
 		jus.stats.desc = "";
-		Gson gs = new Gson();
 		String json = gs.toJsonTree(jus).toString();
 		Logger.info(json);
 		UDP.SendLoraPacket(Hex.decode(GateWayMac), json);
@@ -115,6 +117,11 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	@Override
 	public void MessageReceiveed(SnifModel snifmodel) {
 		System.out.println("MessageReceiveed");
+		MCTask.SendMCID(snifmodel);
+		JsonUpRxpk us = new JsonUpRxpk();
+		us.rxpks.add(snifmodel.rXpk);
+		String json = gs.toJsonTree(us).toString();
+		UDP.SendLoraPacket(Hex.decode(GateWayMac), json);
 	}
 
 	@Override
