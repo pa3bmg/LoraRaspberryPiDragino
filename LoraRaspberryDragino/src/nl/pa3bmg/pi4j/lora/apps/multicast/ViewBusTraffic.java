@@ -103,4 +103,10 @@ public class ViewBusTraffic extends Thread implements  BusMCCallback{
 		System.out.println("=================================================");
 		System.out.println();
 	}
+
+	@Override
+	public void Command(String sdata) {
+		// TODO Auto-generated method stub
+		System.out.println("============= Command "+sdata+" =================");
+	}
 }

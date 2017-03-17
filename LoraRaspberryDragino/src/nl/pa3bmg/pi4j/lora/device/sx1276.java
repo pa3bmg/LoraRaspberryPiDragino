@@ -105,7 +105,7 @@ public class sx1276 extends Thread {
 		if (_DeviceAddress!=null) SetupKeys();
 		try {
 			SetupLoRa();
-			this.run();
+			this.start();
 		} catch (Exception e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -214,6 +214,7 @@ public class sx1276 extends Thread {
 				if (message!=null){
 					System.out.println("Message = "+ ByteUtils.toHexString(message) + " length = "+message.length);
 					SnifModel sm = ProcessMessage(message);
+					System.out.println(sm);
 					if (callback !=null) callback.MessageReceiveed(sm);
 				}
 			}
@@ -221,6 +222,7 @@ public class sx1276 extends Thread {
 	}
 	
 	private SnifModel ProcessMessage(byte[] message){
+		System.out.println("ProcessMessage");
 		SnifModel sm = new SnifModel();
 		sm.bdata = ByteUtils.toHexString(message);
 		int value = readSPI(sx1276.REG_PKT_SNR_VALUE);
@@ -265,6 +267,10 @@ public class sx1276 extends Thread {
 	
 	private boolean SetupLoRa() throws Exception{
 		System.out.println("SetupLoRa");
+		RstPin.low();
+		sleep(100);
+		RstPin.high();
+		sleep(100);
 		int version = readSPI(REG_VERSION);
 		if (version == 0x12){
 			System.out.println("SX1276 detected, starting");
@@ -291,7 +297,7 @@ public class sx1276 extends Thread {
 		//Set Continous Receive Mode
 		writeSPI(REG_LNA, sx1276.LNA_MAX_GAIN);
 		writeSPI(REG_4D_PA_DAC, PA_DAC_ENABLE );
-		writeSPI(REG_OPMODE, SX7X_MODE_STANDBY);
+		writeSPI(REG_OPMODE, SX7X_MODE_RX_CONTINUOS);
 		return true;
 	}
 	

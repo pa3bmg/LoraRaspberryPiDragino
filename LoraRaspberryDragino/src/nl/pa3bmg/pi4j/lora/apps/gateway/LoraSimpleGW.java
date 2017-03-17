@@ -33,17 +33,18 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	
 	
 	public LoraSimpleGW(String _GateWayMac, String _GateWayAddress){
-		Logger.info("Start LoraSimpleGW");
+		Logger.info("Start LoraSimpleGW _GateWayMac="+_GateWayMac+" _GateWayAddress="+_GateWayAddress);
+		UDP = new UDPcomm(this, 1700,1700, GateWayAddress);
+		MCTask = new BusMCTask(this);
+		MCTask.SendMCID("TEST");
 		GateWayMac = _GateWayMac;
 		GateWayAddress = _GateWayAddress;
 		sxdevice = new sx1276(this,gpio);
-		sxdevice.ReceiverOn();
-		UDP = new UDPcomm(this, 1700,1700, GateWayAddress);
-		this.run();
+		this.start();
 	}
 
 	public static void main(String[] args) {
-		if (args.length==3){
+		if (args.length==2){
 			String GateWayMac = args[0];
 			String GateWayAddress = args[1];
 			new LoraSimpleGW(GateWayMac, GateWayAddress);
@@ -53,6 +54,7 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	}
 	
 	public void SendStatusMessage(){
+		System.out.println("SendStatusMessage");
 		JsonUpStatus jus = new JsonUpStatus();
 		jus.stats = new stat();
 		jus.stats.time = GetSimpleNowTime();
@@ -79,6 +81,7 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	}
 	
 	public void run(){
+		System.out.println("Run SGW");
 		while(true){
 			try {
 				sleep(1);
@@ -92,11 +95,14 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 			}
 		}	
 	}
+	
+	public void ProcessMessage(SnifModel snifmodel){
+		MCTask.SendMCID(snifmodel);
+	}
 
 	@Override
 	public void Receive(SnifModel data) {
-		System.out.println("Receive SnifModel 0x"+ Integer.toHexString(data.address));
-		
+		//System.out.println("ReceiveMC SnifModel 0x"+ Integer.toHexString(data.address));
 	}
 
 	@Override
@@ -116,7 +122,9 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 
 	@Override
 	public void MessageReceiveed(SnifModel snifmodel) {
-		System.out.println("MessageReceiveed");
+		System.out.println("MessageReceiveed snifmodel="+snifmodel.address);
+		System.out.println(MCTask);
+		//ProcessMessage(snifmodel);
 		MCTask.SendMCID(snifmodel);
 		JsonUpRxpk us = new JsonUpRxpk();
 		us.rxpks.add(snifmodel.rXpk);
@@ -127,5 +135,10 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	@Override
 	public void Error(int foutCode) {
 		System.out.println("Error " + foutCode);
+	}
+
+	@Override
+	public void Command(String sdata) {
+		System.out.println("MC Command " + sdata);
 	}
 }

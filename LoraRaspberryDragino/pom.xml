@@ -62,6 +62,10 @@
   		<artifactId>tinylog</artifactId>
   		<version>1.2</version>
 	</dependency>
+	<dependency>
+    	<groupId>com.pastdev</groupId>
+    	<artifactId>jsch-extension</artifactId>
+    	<version>0.1.8</version>
+	</dependency>
   </dependencies>
-  
 </project>

@@ -83,8 +83,7 @@ public class BusMCTask {
 					System.out.println("Rec data from " + pack.getAddress());
 					ObjectInputStream o_in = new ObjectInputStream(b_in);
 					Object O_in = o_in.readObject();
-					System.out
-							.println("Rec Class" + O_in.getClass().toString());
+					System.out.println("Rec Class" + O_in.getClass().toString());
 					pack.setLength(buf.length);
 					b_in.reset();
 					if (O_in instanceof SnifModel) {
@@ -93,6 +92,10 @@ public class BusMCTask {
 						System.out.println("= Lora Device Address  0x" + Integer.toHexString(SM.address));
 						System.out.println("= Lora Device Sequence " + SM.sequence);
 						callback.Receive(SM);
+					}
+					if (O_in instanceof String) {
+						System.out.println((String)O_in);
+						callback.Command((String)O_in);
 					}
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
