@@ -124,11 +124,13 @@ public class LoraSimpleGW extends Thread implements UDPCommCallback  , BusMCCall
 	public void MessageReceiveed(SnifModel snifmodel) {
 		System.out.println("MessageReceiveed snifmodel="+snifmodel.address);
 		System.out.println(MCTask);
-		//ProcessMessage(snifmodel);
 		MCTask.SendMCID(snifmodel);
+		System.out.println("@@");
 		JsonUpRxpk us = new JsonUpRxpk();
 		us.rxpks.add(snifmodel.rXpk);
 		String json = gs.toJsonTree(us).toString();
+		System.out.println("MCTask2");
+		System.out.println(json);
 		UDP.SendLoraPacket(Hex.decode(GateWayMac), json);
 	}
 
