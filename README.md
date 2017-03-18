@@ -1,4 +1,4 @@
-# LoraRaspberryPiDragino
+# Lora Raspberry Pi Dragino GPS/HAT
 Simple Lora Gateway and Lora Node on RaspberryPi using the Dragino Lora/GPS HAT and Java(pi4j)
 
 There are a lot of C++ examples but I rather use Java to communicate with the sx1276 on the Dragino Hat.
